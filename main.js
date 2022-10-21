@@ -71,16 +71,20 @@ let enemyCount = 0;
 const enemies = [];
 
 
-const enemy = {
+let enemy = {
     x : 700,
     y : 0,
+    w : 88,
+    h : 100,
     hp : 100,
     shootChance : 0,
+    burstChance : 0,
     fallSpeed : 0.285,
     flapStrength : -6,
     verticalSpeed : 0,
     flapChance : 0,
     alive : true,
+    img : images[3],
     draw : function () {
         ctx.drawImage(images[3], this.x, this.y)
         ctx.fillStyle = "red"
@@ -96,6 +100,38 @@ const enemy = {
         projectiles[projectileCount] = new Projectile(this.x, this.y, "enemy", images[4])
     }
 }
+
+let enemy2 = {
+    x : 700,
+    y : 0,
+    w : 100,
+    h : 75,
+    hp : 100,
+    shootChance : 0,
+    burstChance : 0,
+    fallSpeed : 0.567,
+    flapStrength : -9,
+    verticalSpeed : 0,
+    flapChance : 0,
+    alive : true,
+    draw : function () {
+        ctx.drawImage(images[5], this.x, this.y)
+        ctx.fillStyle = "red"
+        ctx.fillRect(this.x - 5, this.y + images[5].height, 100, 10)
+        ctx.fillStyle = "green"
+        ctx.fillRect(this.x - 5, this.y + images[5].height, this.hp, 10)
+    },
+    flap : function () {
+        enemy.verticalSpeed = enemy.flapStrength;
+    },
+    shoot : function () {
+        projectileCount++;
+        projectiles[projectileCount] = new Projectile(this.x, this.y, "enemy", images[6])
+    }
+}
+
+
+
 
 
 
@@ -133,9 +169,9 @@ class Projectile {
     checkCollision = function () {
         if(this.team == "ally") {
             if (enemy.x < this.x + this.img.width &&
-                enemy.x + images[3].width > this.x &&
+                enemy.x + enemy.w > this.x &&
                 enemy.y < this.y + this.img.height &&
-                images[3].height + enemy.y > this.y) {
+                enemy.h + enemy.y > this.y) {
                     this.hit = true;
                     enemy.hp -= 5;
                 }
@@ -145,7 +181,11 @@ class Projectile {
                 player.y < this.y + this.img.height &&
                 images[0].height + player.y > this.y) {
                     this.hit = true;
-                    player.hp -= 5;
+                    if(lvl == 1) {
+                        player.hp -= 5;
+                    } else {
+                        player.hp -= 7;
+                    }
                 }
         }
     }
@@ -168,8 +208,8 @@ document.addEventListener('keydown', (event) => {
 
 
 
-poland = new Audio("poland.mp3")
-
+poland = new Audio("poland.mp3");
+diss = new Audio("diss.mp3");
 
 function readKey(code) {
     switch(code) {
@@ -187,21 +227,35 @@ function init() {
 
     ctx2.drawImage(images[1], 0, 0);
     let gameInterval = setInterval(gameLoop, 1000/60);
+
+    
 }
+
+let lvl = 1;
+
+let burstCounter = 0;
 
 function update() {
 
     inputTimer++;
 
+    if(lvl == 2) {
+        diss.play();
+    }
+
     if(player.hp <= 0) {
         alert("THE POLISH POLICE CONFISCATED UR WOCK! BOZO! L!");
         clearInterval(gameInterval);
     }
-    if(enemy.hp <= 0) {
-        alert("YOU BROUGHT THE WOCK TO POLAND! W! FUCK COPS!");
-        clearInterval(gameInterval);
+    if(enemy.hp <= 0 && lvl == 1) {
+        enemy = enemy2;
+        lvl = 2;
     }
 
+    if(enemy.hp <= 0 && lvl == 2) {
+        alert("YOU TOOK THE WOCK TO POLAND! W! FUCK COPS! AND EMINEM!");
+        clearInterval(gameInterval);
+    }
 
     player.y = player.y + player.verticalSpeed;
     player.verticalSpeed = player.verticalSpeed + player.fallSpeed;
@@ -232,18 +286,42 @@ function update() {
     }
 
 
+
+
     enemy.flapChance = randomNumber(0, 20);
 
-    if(enemy.flapChance == 7 && enemy.y > 50) {
+    if(enemy.flapChance == 7 && enemy.y > 50 && lvl == 1) {
+        enemy.flap();
+    } 
+
+    if(lvl == 2) {
+        enemy.flapChance = randomNumber(0, 18);
+    }
+
+    if(enemy.flapChance == 7 && enemy.y > 50 && lvl == 2) {
         enemy.flap();
     }
 
     enemy.shootChance++;
+    enemy.burstChance++;
+
+
+    if(enemy.burstChance >= 50 && lvl == 2) {
+        enemy.shootChance = 25;
+        burstCounter++;
+    }
+
 
     if(enemy.shootChance >= 25) {
         enemy.shoot();
         enemy.shootChance = 0;
     }
+
+    if(burstCounter >= 10) {
+        burstCounter = 0;
+        enemy.burstChance = 0;
+    }
+
 
     projectiles.forEach(projectile => {
         projectile.shoot();

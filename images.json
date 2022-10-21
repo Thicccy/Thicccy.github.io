@@ -23,5 +23,15 @@
         "id" : 4,
         "name" : "cuffs",
         "url" : "cuffs.png"
+    },
+    {
+        "id" : 5,
+        "name" : "em",
+        "url" : "em.png"
+    },
+    {
+        "id" : 6,
+        "name" : "mic",
+        "url" : "mic.png"
     }
 ]
