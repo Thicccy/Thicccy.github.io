@@ -33,5 +33,16 @@
         "id" : 6,
         "name" : "mic",
         "url" : "mic.png"
+    },
+    {
+        "id" : 7,
+        "name" : "tate",
+        "url" : "tate.png"
+    },
+    {
+        "id" : 8,
+        "name" : "bugatti",
+        "url" : "bugatti.png"
     }
+
 ]

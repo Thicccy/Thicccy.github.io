@@ -130,7 +130,34 @@ let enemy2 = {
     }
 }
 
-
+let enemy3 = {
+    x : 700,
+    y : 0,
+    w : 100,
+    h : 75,
+    hp : 100,
+    shootChance : 0,
+    burstChance : 0,
+    fallSpeed : 0.765,
+    flapStrength : -14,
+    verticalSpeed : 0,
+    flapChance : 0,
+    alive : true,
+    draw : function () {
+        ctx.drawImage(images[7], this.x, this.y)
+        ctx.fillStyle = "red"
+        ctx.fillRect(this.x - 5, this.y + images[7].height, 100, 10)
+        ctx.fillStyle = "green"
+        ctx.fillRect(this.x - 5, this.y + images[7].height, this.hp, 10)
+    },
+    flap : function () {
+        enemy.verticalSpeed = enemy.flapStrength;
+    },
+    shoot : function () {
+        projectileCount++;
+        projectiles[projectileCount] = new Projectile(this.x, this.y, "enemy", images[8])
+    }
+}
 
 
 
@@ -183,9 +210,14 @@ class Projectile {
                     this.hit = true;
                     if(lvl == 1) {
                         player.hp -= 5;
-                    } else {
+                    }
+                    if(lvl == 2) {
                         player.hp -= 7;
                     }
+                    if(lvl ==3) {
+                        player.hp -= 10;
+                    }
+
                 }
         }
     }
@@ -235,12 +267,21 @@ let lvl = 1;
 
 let burstCounter = 0;
 
+let tatesong = new Audio("tatesong.mp3")
+
 function update() {
 
     inputTimer++;
 
     if(lvl == 2) {
         diss.play();
+        poland.volume = 0.35;
+    }
+
+    if(lvl == 3) {
+        tatesong.play();
+        diss.pause();
+        poland.volume = 0.35;
     }
 
     if(player.hp <= 0) {
@@ -251,8 +292,16 @@ function update() {
         enemy = enemy2;
         lvl = 2;
     }
-
     if(enemy.hp <= 0 && lvl == 2) {
+        enemy = enemy3;
+        lvl = 3;
+    }
+
+
+
+
+
+    if(enemy.hp <= 0 && lvl == 3) {
         alert("YOU TOOK THE WOCK TO POLAND! W! FUCK COPS! AND EMINEM!");
         clearInterval(gameInterval);
     }
@@ -272,8 +321,8 @@ function update() {
     enemy.y = enemy.y + enemy.verticalSpeed;
     enemy.verticalSpeed = enemy.verticalSpeed + enemy.fallSpeed;
 
-    if(enemy.y + images[3].height > 600) {
-        enemy.y = 600 - images[3].height
+    if(enemy.y + enemy.h > 600) {
+        enemy.y = 600 - enemy.h
         enemy.flap();
     }
 
@@ -298,7 +347,15 @@ function update() {
         enemy.flapChance = randomNumber(0, 18);
     }
 
+    if(lvl == 3) {
+        enemy.flapChance = randomNumber(0, 14);
+    }
+
     if(enemy.flapChance == 7 && enemy.y > 50 && lvl == 2) {
+        enemy.flap();
+    }
+
+    if(enemy.flapChance == 7 && enemy.y > 50 && lvl == 3) {
         enemy.flap();
     }
 
@@ -311,16 +368,26 @@ function update() {
         burstCounter++;
     }
 
-
+    if(enemy.burstChance >= 50 && lvl == 3) {
+        enemy.shootChance = 25;
+        burstCounter++;
+    }
+    
     if(enemy.shootChance >= 25) {
         enemy.shoot();
         enemy.shootChance = 0;
     }
 
-    if(burstCounter >= 10) {
+    if(burstCounter >= 10 && lvl == 2) {
         burstCounter = 0;
         enemy.burstChance = 0;
     }
+
+    if(burstCounter >= 20 && lvl == 3) {
+        burstCounter = 0;
+        enemy.burstChance = 0;
+    }
+
 
 
     projectiles.forEach(projectile => {
