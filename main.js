@@ -159,7 +159,34 @@ let enemy3 = {
     }
 }
 
-
+let enemy4 = {
+    x : 700,
+    y : 0,
+    w : 100,
+    h : 100,
+    hp : 100,
+    shootChance : 0,
+    burstChance : 0,
+    fallSpeed : 0.765,
+    flapStrength : -16,
+    verticalSpeed : 0,
+    flapChance : 0,
+    alive : true,
+    draw : function () {
+        ctx.drawImage(images[9], this.x, this.y)
+        ctx.fillStyle = "red"
+        ctx.fillRect(this.x - 5, this.y + images[7].height, 100, 10)
+        ctx.fillStyle = "green"
+        ctx.fillRect(this.x - 5, this.y + images[7].height, this.hp, 10)
+    },
+    flap : function () {
+        enemy.verticalSpeed = enemy.flapStrength;
+    },
+    shoot : function () {
+        projectileCount++;
+        projectiles[projectileCount] = new Projectile(this.x, this.y, "enemy", images[10])
+    }
+}
 
 
 
@@ -214,8 +241,11 @@ class Projectile {
                     if(lvl == 2) {
                         player.hp -= 7;
                     }
-                    if(lvl ==3) {
+                    if(lvl == 3) {
                         player.hp -= 10;
+                    }
+                    if(lvl == 4) {
+                        player.hp -= 12;
                     }
 
                 }
@@ -242,6 +272,7 @@ document.addEventListener('keydown', (event) => {
 
 poland = new Audio("poland.mp3");
 diss = new Audio("diss.mp3");
+dope = new Audio("dope.mp3");
 
 function readKey(code) {
     switch(code) {
@@ -283,6 +314,11 @@ function update() {
         diss.pause();
         poland.volume = 0.35;
     }
+    if(lvl == 4) {
+        dope.play();
+        tatesong.pause();
+        poland.volume = 0.35;
+    }
 
     if(player.hp <= 0) {
         alert("THE POLISH POLICE CONFISCATED UR WOCK! BOZO! L!");
@@ -296,12 +332,15 @@ function update() {
         enemy = enemy3;
         lvl = 3;
     }
-
-
-
-
-
     if(enemy.hp <= 0 && lvl == 3) {
+        enemy = enemy4;
+        lvl = 4;
+    }
+
+
+
+
+    if(enemy.hp <= 0 && lvl == 4) {
         alert("YOU TOOK THE WOCK TO POLAND! W! FUCK COPS! AND EMINEM!");
         clearInterval(gameInterval);
     }
@@ -351,11 +390,18 @@ function update() {
         enemy.flapChance = randomNumber(0, 14);
     }
 
+    if(lvl == 4) {
+        enemy.flapChance = randomNumber(0, 12);
+    }
     if(enemy.flapChance == 7 && enemy.y > 50 && lvl == 2) {
         enemy.flap();
     }
 
     if(enemy.flapChance == 7 && enemy.y > 50 && lvl == 3) {
+        enemy.flap();
+    }
+
+    if(enemy.flapChance == 7 && enemy.y > 50 && lvl == 4) {
         enemy.flap();
     }
 
@@ -372,7 +418,12 @@ function update() {
         enemy.shootChance = 25;
         burstCounter++;
     }
-    
+
+    if(enemy.burstChance >= 50 && lvl == 4) {
+        enemy.shootChance = 25;
+        burstCounter++;
+    }
+
     if(enemy.shootChance >= 25) {
         enemy.shoot();
         enemy.shootChance = 0;
@@ -388,7 +439,10 @@ function update() {
         enemy.burstChance = 0;
     }
 
-
+    if(burstCounter >= 30 && lvl == 4) {
+        burstCounter = 0;
+        enemy.burstChance = 0;
+    }
 
     projectiles.forEach(projectile => {
         projectile.shoot();

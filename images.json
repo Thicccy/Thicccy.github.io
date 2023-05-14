@@ -43,6 +43,16 @@
         "id" : 8,
         "name" : "bugatti",
         "url" : "bugatti.png"
+    },
+    {
+        "id" : 9,
+        "name" : "lildope",
+        "url" : "lildope.png"
+    },
+    {
+        "id" : 10,
+        "name" : "cs",
+        "url" : "cs.png"
     }
 
 ]
