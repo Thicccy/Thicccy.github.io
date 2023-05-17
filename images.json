@@ -53,6 +53,17 @@
         "id" : 10,
         "name" : "cs",
         "url" : "cs.png"
+    },
+    {    
+        "id" : 11,
+        "name" : "burst",
+        "url" : "burst.png"
+    },
+    {
+        "id" : 12,
+        "name" : "shield",
+        "url" : "shield.png"
     }
+
 
 ]

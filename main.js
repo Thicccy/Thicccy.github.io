@@ -11,6 +11,7 @@ const images = [];
 
 let imgLoadProg = 0;
 let imgLoadProgMax = 0;
+let waitInterval;
 
 fetch("images.json")
     .then(response => {
@@ -23,6 +24,10 @@ fetch("images.json")
             images[pic.id].name = pic.name;
             images[pic.id].onload = function() {
                 imgLoadProg++;
+                if(!waitInterval) {
+                    waitInterval = setInterval(wait, 1000/20);
+                }
+
             }
             images[pic.id].src = pic.url;
             imgLoadProgMax++;
@@ -37,7 +42,7 @@ function wait() {
     }
 }
 
-let waitInterval = setInterval(wait, 1000/20);
+
 
 function randomNumber(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -50,6 +55,10 @@ const player = {
     fallSpeed : 0.285,
     flapStrength : -6,
     verticalSpeed : 0,
+    powerupCounter : 0,
+    poweredUp : false,
+    powerType : "none",
+    powerUpRest : false,
     draw : function () {
         ctx.drawImage(images[0], this.x, this.y)
         ctx.fillStyle = "red"
@@ -228,6 +237,11 @@ class Projectile {
                 enemy.h + enemy.y > this.y) {
                     this.hit = true;
                     enemy.hp -= 5;
+                    if(!player.poweredUp) {
+                        player.powerupCounter += 1;
+                    }
+
+                    //console.log(player.powerupCounter);
                 }
         } else {
             if (player.x < this.x + this.img.width &&
@@ -235,6 +249,9 @@ class Projectile {
                 player.y < this.y + this.img.height &&
                 images[0].height + player.y > this.y) {
                     this.hit = true;
+                    if(player.poweredUp == true && player.powerType == "shield") {
+                        return;
+                    }
                     if(lvl == 1) {
                         player.hp -= 5;
                     }
@@ -247,7 +264,6 @@ class Projectile {
                     if(lvl == 4) {
                         player.hp -= 12;
                     }
-
                 }
         }
     }
@@ -256,11 +272,11 @@ class Projectile {
 
 
 let inputTimer = 0;
-
+let maxInputTimer = 15;
 document.addEventListener('keydown', (event) => {
     var name = event.key;
     var code = event.code;
-    if(inputTimer >= 15) {
+    if(inputTimer >= maxInputTimer) {
         inputTimer = 0;
         readKey(code)
     }
@@ -275,9 +291,30 @@ diss = new Audio("diss.mp3");
 dope = new Audio("dope.mp3");
 
 function readKey(code) {
+    console.log(code)
     switch(code) {
         case "Space":
             player.shoot(); 
+            break;
+        case "KeyB":
+
+            if(!player.powerUpRest) {
+                player.powerType = "burst";
+            } else {
+                player.powerType = "none";
+            }
+
+
+            break;
+        case "KeyS":
+            if(!player.powerUpRest) {
+                player.powerType = "shield";
+            } else {
+                player.powerType = "none";
+            }
+
+            break;
+
     }
 }
 
@@ -300,9 +337,61 @@ let burstCounter = 0;
 
 let tatesong = new Audio("tatesong.mp3")
 
+let powerUpTime = 0;
+
+let powerUpCoolDown = 0;
+
+
 function update() {
 
     inputTimer++;
+
+    powerUpCoolDown++;
+
+    if(player.powerUpRest == true && powerUpCoolDown >= 1000) {
+        player.powerUpRest = false;
+    }
+
+
+    if(player.powerupCounter == 0) {
+        powerUpTime = 0;
+    }
+
+    if(player.powerupCounter >= 5 && player.powerUpRest == false) {
+        player.poweredUp = true;
+        console.log("POWER??")
+    }
+
+    if(player.poweredUp && player.powerType == "burst") {
+        powerUpTime += 1;
+        if(powerUpTime > 132) {
+            player.poweredUp = false;
+            player.powerupCounter = 0;
+            maxInputTimer = 15;
+            player.powerType = "none";
+            player.powerUpRest = true;
+        } else {
+            maxInputTimer = 4;
+
+        }
+    }
+
+    if(player.poweredUp && player.powerType == "shield") {
+        powerUpTime += 1;
+        if(powerUpTime > 210) {
+            player.poweredUp = false;
+            player.powerupCounter = 0;
+            player.powerType = "none";
+            player.powerUpRest = true;
+        } else {
+
+        }
+    }
+
+
+
+
+
 
     if(lvl == 2) {
         diss.play();
@@ -459,7 +548,32 @@ function draw() {
 
     })
     player.draw();
+    
+    if(player.poweredUp == true && player.powerType == "shield") {
+        ctx.beginPath();
+        ctx.arc(player.x + 40, player.y + 45, 55, 0, 2 * Math.PI, false);
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "blue";
+        ctx.stroke();
+    }
+
+
     enemy.draw();
+
+    if(player.poweredUp && player.powerUpRest == false) {
+        ctx.font = "50px Arial";
+        ctx.fillStyle = "red";
+        ctx.fillText("POWER UP READY!", 220, 250);
+    }
+
+
+    ctx.font = "50px Arial";
+    ctx.fillStyle = "black";
+    ctx.fillText("B", 235, 475);
+    ctx.fillText("S", 332, 475);
+    ctx.drawImage(images[11], 200, 475);
+    ctx.drawImage(images[12], 300, 475);
+
 }
 
 function gameLoop() {
