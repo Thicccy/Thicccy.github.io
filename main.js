@@ -59,6 +59,8 @@ const player = {
     poweredUp : false,
     powerType : "none",
     powerUpRest : false,
+    fireRate : 15,
+    shotTimer : 0,
     draw : function () {
         ctx.drawImage(images[0], this.x, this.y)
         ctx.fillStyle = "red"
@@ -70,8 +72,12 @@ const player = {
         player.verticalSpeed = player.flapStrength;
     },
     shoot : function () {
+        if(this.shotTimer < this.fireRate) {
+            return;
+        }
         projectileCount++;
         projectiles[projectileCount] = new Projectile(this.x, this.y, "ally", images[2])
+        this.shotTimer = 0;
     }
 }
 
@@ -271,15 +277,10 @@ class Projectile {
 }
 
 
-let inputTimer = 0;
-let maxInputTimer = 15;
 document.addEventListener('keydown', (event) => {
     var name = event.key;
     var code = event.code;
-    if(inputTimer >= maxInputTimer) {
-        inputTimer = 0;
-        readKey(code)
-    }
+    readKey(code)
 
 });
 
@@ -344,7 +345,7 @@ let powerUpCoolDown = 0;
 
 function update() {
 
-    inputTimer++;
+    player.shotTimer++;
 
     powerUpCoolDown++;
 
@@ -367,12 +368,11 @@ function update() {
         if(powerUpTime > 132) {
             player.poweredUp = false;
             player.powerupCounter = 0;
-            maxInputTimer = 15;
             player.powerType = "none";
             player.powerUpRest = true;
+            player.fireRate = 15;
         } else {
-            maxInputTimer = 4;
-
+            player.fireRate = 4;
         }
     }
 
