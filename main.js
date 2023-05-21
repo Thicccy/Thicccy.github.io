@@ -276,7 +276,6 @@ class Projectile {
                         player.powerupCounter += 1;
                     }
 
-                    //console.log(player.powerupCounter);
                 }
         } else {
             if (player.x < this.x + this.img.width &&
@@ -324,7 +323,6 @@ dope = new Audio("dope.mp3");
 beans = new Audio("beans.mp3");
 
 function readKey(code) {
-    console.log(code)
     switch(code) {
         case "Space":
             player.shoot(); 
@@ -392,7 +390,6 @@ function update() {
 
     if(player.powerupCounter >= 5 && player.powerUpRest == false) {
         player.poweredUp = true;
-        console.log("POWER??")
     }
 
     if(player.poweredUp && player.powerType == "burst") {
