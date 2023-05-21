@@ -63,6 +63,16 @@
         "id" : 12,
         "name" : "shield",
         "url" : "shield.png"
+    },
+    {
+        "id" : 13,
+        "name" : "sultan",
+        "url" : "sultan.png"
+    },
+    {
+        "id" : 14,
+        "name" : "beans",
+        "url" : "beans.png"
     }
 
 
