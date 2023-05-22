@@ -76,7 +76,7 @@ const player = {
             return;
         }
         projectileCount++;
-        projectiles[projectileCount] = new Projectile(this.x, this.y, "ally", images[2])
+        projectiles[projectileCount] = new Projectile(this.x, this.y, "ally", images[2], this.poweredUp);
         this.shotTimer = 0;
     }
 }
@@ -243,12 +243,14 @@ class Projectile {
     team;
     img;
     hit = false;
+    powered = false;
 
-    constructor(x, y, team, img) {
+    constructor(x, y, team, img, powered) {
         this.x = x;
         this.y = y;
         this.team = team;
         this.img = img;
+        this.powered = powered;
     }
 
     draw = function () {
@@ -272,7 +274,7 @@ class Projectile {
                 enemy.h + enemy.y > this.y) {
                     this.hit = true;
                     enemy.hp -= 5;
-                    if(!player.poweredUp) {
+                    if(this.powered == false) {
                         player.powerupCounter += 1;
                     }
 
@@ -314,7 +316,12 @@ document.addEventListener('keydown', (event) => {
 
 });
 
+document.addEventListener('keyup', (event) => {
+    var name = event.key;
+    var code = event.code;
+    releaseKey(code);
 
+});
 
 
 poland = new Audio("poland.mp3");
@@ -322,15 +329,38 @@ diss = new Audio("diss.mp3");
 dope = new Audio("dope.mp3");
 beans = new Audio("beans.mp3");
 
+
+var keys = [];
+
+
+function releaseKey(code) {
+    switch(code) {
+        case "Space":
+            keys[0] = false;
+        case "KeyB":
+
+            keys[1] = false;
+            break;
+
+        case "KeyS":
+            keys[2] = false;
+            break;
+
+    }
+}
+
+
 function readKey(code) {
     switch(code) {
         case "Space":
-            player.shoot(); 
+            keys[0] = true;
             break;
         case "KeyB":
 
             if(!player.powerUpRest) {
                 player.powerType = "burst";
+                keys[1] = true;
+                shotTimer = 15;
             } else {
                 player.powerType = "none";
             }
@@ -340,6 +370,8 @@ function readKey(code) {
         case "KeyS":
             if(!player.powerUpRest) {
                 player.powerType = "shield";
+                keys[2] = true;
+                shotTimer = 15;
             } else {
                 player.powerType = "none";
             }
@@ -379,7 +411,11 @@ function update() {
 
     powerUpCoolDown++;
 
-    if(player.powerUpRest == true && powerUpCoolDown >= 1000) {
+    if(keys[0] == true) {
+        player.shoot();
+    }
+
+    if(player.powerUpRest == true && powerUpCoolDown >= 1200) {
         player.powerUpRest = false;
     }
 
@@ -394,7 +430,7 @@ function update() {
 
     if(player.poweredUp && player.powerType == "burst") {
         powerUpTime += 1;
-        if(powerUpTime > 132) {
+        if(powerUpTime > 56) {
             player.poweredUp = false;
             player.powerupCounter = 0;
             player.powerType = "none";
